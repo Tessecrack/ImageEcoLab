@@ -1,0 +1,136 @@
+﻿<Window x:Class="ImageEcoLab.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ImageEcoLab"
+        xmlns:vm="clr-namespace:ImageEcoLab.ViewModels"
+        xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:fa="http://schemas.fontawesome.com/icons/"
+        mc:Ignorable="d"
+        Title="ImageEcoLab" Height="600" Width="1000"
+        WindowStartupLocation="CenterScreen">
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="File">
+                <MenuItem Header="Download image">
+                    <MenuItem Header="Upload image from this computer"
+                              Command="{Binding DownloadImageCommand}">
+                    </MenuItem>
+                    <MenuItem Header="Upload web image">
+                    </MenuItem>
+                </MenuItem>
+                <MenuItem Header="Save image"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Settings"/>
+            <MenuItem Header="About program"/>
+        </Menu>
+        <StatusBar DockPanel.Dock="Bottom" Grid.Row="1">
+            <StatusBarItem BorderBrush="Purple" BorderThickness="1">
+                <TextBlock Text="{Binding CurrentStatusStr,UpdateSourceTrigger=PropertyChanged}"/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <ProgressBar Width="100" Height="20" 
+                         Minimum="0" 
+                         Maximum="100"
+                         Value="{Binding ProgressBarValue}">
+                </ProgressBar>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <Button HorizontalAlignment="Center" 
+                        Content="Close"
+                        Command="{Binding Path=CloseApplicationCommand}"/>
+            </StatusBarItem>
+        </StatusBar>
+        <TabControl>
+            <TabItem Header="Image">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MinWidth="200" Width="Auto" MaxWidth="300"/>
+                        <ColumnDefinition MinWidth="200"/>
+                        <ColumnDefinition MinWidth="200"/>
+                    </Grid.ColumnDefinitions>
+                    <GridSplitter Grid.Column="0" Width="2" Panel.ZIndex="100"/>
+                    <GridSplitter Grid.Column="1" Width="2" Panel.ZIndex="100"/>
+
+                    <GroupBox Header="Actions" 
+                              Grid.Column="0" 
+                              Padding="1"
+                              Margin="0,5">
+                        <DockPanel>
+                            <DockPanel DockPanel.Dock="Top" Margin="3">
+                                <fa:ImageAwesome Icon="Solid_Search" Height="12" Margin="3"/>
+                                <TextBox Text=""/>
+                            </DockPanel>
+                            <ScrollViewer>
+                                <StackPanel Orientation="Vertical">
+                                    <GroupBox Header="Histogram" 
+                                              Padding="1"
+                                              Margin="5">
+                                        <StackPanel Orientation="Vertical">
+                                            <GroupBox Padding="1">
+                                                <StackPanel Margin="3">
+                                                    <TextBlock Text="Alignment height" Margin="3" ToolTip="Only for rendering. Value = 0 is original"/>
+                                                    <Slider Minimum="0" Maximum="250" 
+                                                            Value="{Binding AligmentCoefHist}" 
+                                                            ToolTip="{Binding AligmentCoefHist}"
+                                                            Margin="5" TickFrequency="1"/>
+                                                </StackPanel>
+                                            </GroupBox>
+                                            <RadioButton Content="Histogram" Margin="2" IsChecked="{Binding IsHistogramGraph}"/>
+                                            <RadioButton Content="Linear" Margin="2" IsChecked="{Binding IsLinearGraph}"/>
+                                            <Button Content="Draw histogram" Margin="2" 
+                                                    Command="{Binding DrawHistogramsCommand}"/>
+                                        </StackPanel>
+                                    </GroupBox>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </DockPanel>
+                    </GroupBox>
+
+                    <GroupBox Header="Image" 
+                              Grid.Column="1"
+                              Padding="1"
+                              Margin="0,5">
+                        <Image Source="{Binding BitmapImageSource}"/>
+                    </GroupBox>
+
+                    <GroupBox Header="Histogram" 
+                              Grid.Column="2"
+                              Padding="1"
+                              Margin="0,5">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <GroupBox Header="Red channel" 
+                                      Grid.Row="0"
+                                      Padding="1"
+                                      Margin="1">
+                                <oxy:PlotView Model="{Binding RedChannelHist}"/>
+                            </GroupBox>
+                            <GroupBox Header="Green channel" 
+                                      Grid.Row="1"
+                                      Padding="1"
+                                      Margin="1">
+                                <oxy:PlotView Model="{Binding GreenChannelHist}"/>
+                            </GroupBox>
+                            <GroupBox Header="Blue channel" 
+                                      Grid.Row="2"
+                                      Padding="1"
+                                      Margin="1">
+                                <oxy:PlotView Model="{Binding BlueChannelHist}"/>
+                            </GroupBox>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Video"/>
+        </TabControl>
+    </DockPanel>
+</Window>
