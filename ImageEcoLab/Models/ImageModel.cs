@@ -1,16 +1,11 @@
-﻿using System.Windows.Media.Imaging;
-
-namespace ImageEcoLab.Models
+﻿namespace ImageEcoLab.Models
 {
 	internal class ImageModel
 	{
-		public BitmapSource? SourceImage { get; set; }
+		public string Uri { get; set; }
 		public int Width { get; set; }
 		public int Height { get; set; }
-		public Pixel[,]? Pixels 
-		{ 
-			get; 
-			set; 
-		}
+		public Pixel[,]? Pixels { get; set; }
+		public byte[] Bytes { get; set; }
 	}
 }

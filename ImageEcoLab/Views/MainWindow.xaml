@@ -67,6 +67,30 @@
                             </DockPanel>
                             <ScrollViewer>
                                 <StackPanel Orientation="Vertical">
+                                    <GroupBox Header="Normalization"
+                                              Padding="1"
+                                              Margin="5">
+                                        <StackPanel Orientation="Vertical">
+                                            <GroupBox Padding="1">
+                                                <StackPanel>
+                                                    <TextBlock Text="Upper threshold" Margin="3" ToolTip="Recomendation: 240 - 254"/>
+                                                    <Slider Margin="3" Minimum="0" Maximum="255" 
+                                                            Value="{Binding UpperThresholdNormalization}"
+                                                            ToolTip="{Binding UpperThresholdNormalization}"/>
+                                                    <TextBlock Text="Lower threshold" Margin="3" ToolTip="Recomendation: 1 - 10"/>
+                                                    <Slider Margin="3" Minimum="0" Maximum="255"
+                                                            Value="{Binding LowerThresholdNormalization}"
+                                                            ToolTip="{Binding LowerThresholdNormalization}"/>
+                                                    <Button Content="Normalize" Command="{Binding Path=NormalizeImageCommand}" Margin="3"></Button>
+                                                </StackPanel>
+                                            </GroupBox>
+                                        </StackPanel>
+                                    </GroupBox>
+                                    <GroupBox Header="Grayscale"
+                                              Padding="1"
+                                              Margin="5">
+                                        <Button Content="Convert to grayscale" Command="{Binding Path=ConvertToGrayscaleCommand}" Margin="3"/>
+                                    </GroupBox>
                                     <GroupBox Header="Histogram" 
                                               Padding="1"
                                               Margin="5">
@@ -84,6 +108,7 @@
                                             <RadioButton Content="Linear" Margin="2" IsChecked="{Binding IsLinearGraph}"/>
                                             <Button Content="Draw histogram" Margin="2" 
                                                     Command="{Binding DrawHistogramsCommand}"/>
+                                            <Button Content="Equalization" Margin="2"/>
                                         </StackPanel>
                                     </GroupBox>
                                 </StackPanel>
@@ -95,7 +120,9 @@
                               Grid.Column="1"
                               Padding="1"
                               Margin="0,5">
-                        <Image Source="{Binding BitmapImageSource}"/>
+                        <GroupBox Header="Source" Padding="1" Margin="3">
+                            <Image Source="{Binding BitmapImageShowed}" Stretch="Fill"/>
+                        </GroupBox>
                     </GroupBox>
 
                     <GroupBox Header="Histogram" 
@@ -107,21 +134,28 @@
                                 <RowDefinition/>
                                 <RowDefinition/>
                                 <RowDefinition/>
+                                <RowDefinition/>
                             </Grid.RowDefinitions>
-                            <GroupBox Header="Red channel" 
+                            <GroupBox Header="Brightness"
                                       Grid.Row="0"
+                                      Padding="1"
+                                      Margin="1">
+                                <oxy:PlotView Model="{Binding BrightnessHist}"/>
+                            </GroupBox>
+                            <GroupBox Header="Red channel" 
+                                      Grid.Row="1"
                                       Padding="1"
                                       Margin="1">
                                 <oxy:PlotView Model="{Binding RedChannelHist}"/>
                             </GroupBox>
                             <GroupBox Header="Green channel" 
-                                      Grid.Row="1"
+                                      Grid.Row="2"
                                       Padding="1"
                                       Margin="1">
                                 <oxy:PlotView Model="{Binding GreenChannelHist}"/>
                             </GroupBox>
                             <GroupBox Header="Blue channel" 
-                                      Grid.Row="2"
+                                      Grid.Row="3"
                                       Padding="1"
                                       Margin="1">
                                 <oxy:PlotView Model="{Binding BlueChannelHist}"/>
@@ -130,7 +164,10 @@
                     </GroupBox>
                 </Grid>
             </TabItem>
-            <TabItem Header="Video"/>
+            <TabItem Header="Video">
+                <MediaElement Name="VideoControl" Source="">
+                </MediaElement>
+            </TabItem>
         </TabControl>
     </DockPanel>
 </Window>
