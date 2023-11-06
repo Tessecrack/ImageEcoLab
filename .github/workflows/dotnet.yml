@@ -4,20 +4,17 @@
 name: .NET
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+  [push, pull_request]
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    name: Initialize build on .NET Core
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v3
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
