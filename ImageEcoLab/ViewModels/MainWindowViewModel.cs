@@ -2,8 +2,6 @@
 using ImageEcoLab.Models;
 using ImageEcoLab.Services;
 using ImageEcoLab.Services.Base;
-using OxyPlot;
-using OxyPlot.Series;
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
@@ -19,16 +17,16 @@ namespace ImageEcoLab.ViewModels
 	internal class MainWindowViewModel : ViewModel
 	{
 		private readonly IDataService _dataService;
+		private readonly IConverterService _converterService;
+		private readonly ImageEngine _imageEngine;
+		public HistogramViewModel HistogramViewModel { get; private set; }
 
-		private readonly ImageEngine _imageEngine = new ImageEngine();
 
 		private ImageModel _sourceImageModel;
 
 		private ImageModel _grayscaleImageModel;
 
 		private ImageModel _currentImageModel;
-
-		private ConverterService _converterService = new ConverterService();
 
 		#region ProgressBarValue
 		private int _progressBarValue = 0;
@@ -158,30 +156,6 @@ namespace ImageEcoLab.ViewModels
 		}
 		#endregion
 
-		#region Histograms
-		private Histograms _histograms;
-		#endregion
-
-		#region BrightnessHist
-		private PlotModel _brightnessHist = new PlotModel();
-		public PlotModel BrightnessHist { get => _brightnessHist; set => Set(ref _brightnessHist, value); }
-		#endregion
-
-		#region Property RedChannelHist
-		private PlotModel _redChannelHist = new PlotModel();
-		public PlotModel RedChannelHist { get => _redChannelHist; set => Set(ref _redChannelHist, value); }
-		#endregion
-
-		#region Property GreenChannelHist
-		private PlotModel _greenChannelHist = new PlotModel();
-		public PlotModel GreenChannelHist { get => _greenChannelHist; set => Set(ref _greenChannelHist, value); }
-		#endregion
-
-		#region Property BlueChannelHist
-		private PlotModel _blueChannelHist = new PlotModel();
-		public PlotModel BlueChannelHist { get => _blueChannelHist; set => Set(ref _blueChannelHist, value); }
-		#endregion
-
 		#region CloseApplicationCommand
 		public ICommand CloseApplicationCommand { get; set; }
 		private bool CanCloseAppliationCommandExecute(object parameter) => true;
@@ -219,7 +193,7 @@ namespace ImageEcoLab.ViewModels
 				return;
 			}
 
-			BitmapImageShowed = _converterService.ConvertToBgra32(new BitmapImage(new Uri(uri)));
+			BitmapImageShowed = _converterService.Convert(new BitmapImage(new Uri(uri)), PixelFormats.Bgra32);
 
 			int width = BitmapImageShowed.PixelWidth;
 			int height = BitmapImageShowed.PixelHeight;
@@ -265,72 +239,11 @@ namespace ImageEcoLab.ViewModels
 			{
 				return;
 			}
-			this._histograms = _imageEngine.GetHistograms(_currentImageModel);
-
-			var redChannel = this._histograms.RedChannel;
-			var greenChannel = this._histograms.GreenChannel;
-			var blueChannel = this._histograms.BlueChannel;
-			var brightness = this._histograms.BrightnessHist;
-
-			RedChannelHist = CreatePlotModel(redChannel, OxyColor.FromRgb(255, 0, 0));
-			GreenChannelHist = CreatePlotModel(greenChannel, OxyColor.FromRgb(0, 255, 0));
-			BlueChannelHist = CreatePlotModel(blueChannel, OxyColor.FromRgb(0, 0, 255));
-			BrightnessHist = CreatePlotModel(brightness, OxyColor.FromRgb(0, 0, 0));
-		}
-
-		private LineSeries CreateLine(long[] data, OxyColor color)
-		{
-			var line = new LineSeries();
-
-			line.Color = color;
-
-			for (int i = 0; i < data.Length; ++i)
-			{
-				line.Points.Add(new DataPoint(i, data[i]));
-			}
-
-			return line;
-		}
-
-		private HistogramSeries CreateHistogram(long[] data, OxyColor color)
-		{
-			var series = new HistogramSeries()
-			{
-				FillColor = color
-			};
-
-			for (int i = 0; i < data.Length; ++i)
-			{
-				var item = new HistogramItem(i, i + 1, data[i], 10, color);
-				series.Items.Add(item);
-			}
-
-			return series;
-		}
-
-		private PlotModel CreatePlotModel(long[] data, OxyColor color)
-		{
-			var plotModel = new PlotModel();
-
-			XYAxisSeries series;
-			var alignedData = _imageEngine.AlignChannelHeight(data, AligmentCoefHist);
-			if (IsLinearGraph)
-			{
-				series = CreateLine(alignedData, color);
-			}
-			else
-			{
-				series = CreateHistogram(alignedData, color);
-			}
-
-			plotModel.Series.Add(series);
-
-			return plotModel;
+			HistogramViewModel.UpdateHistograms(_currentImageModel, AligmentCoefHist, IsLinearGraph);
 		}
 		#endregion
 
 		#region NormalizeImageCommand
-
 		public ICommand NormalizeImageCommand { get; set; }
 		private bool CanNormalizeImageCommandExecute(object parameter) => _grayscaleImageModel != null;
 		private void OnNormalizeImageCommandExecuted(object parameter)
@@ -340,8 +253,6 @@ namespace ImageEcoLab.ViewModels
 			_currentImageModel = newImageModel;
 			DrawHistogramsCommand.Execute(this);
 		}
-
-
 		#endregion
 
 		#region EqualizationHistogramCommand
@@ -349,7 +260,7 @@ namespace ImageEcoLab.ViewModels
 		private bool CanEqualizationHistogramCommandExecute(object parameter) => _grayscaleImageModel != null;
 		private void OnEqualizationHistogramCommandExecuted(object parameter)
 		{
-			_currentImageModel = _imageEngine.EqualizeGrayscale(_grayscaleImageModel, _histograms);
+			_currentImageModel = _imageEngine.EqualizeGrayscale(_grayscaleImageModel);
 			ShowImage(_currentImageModel);
 			DrawHistogramsCommand.Execute(this);
 		}
@@ -372,9 +283,14 @@ namespace ImageEcoLab.ViewModels
 			BitmapImageShowed = writeableBitmap;
 		}
 
-		public MainWindowViewModel()
+		public MainWindowViewModel(ImageEngine imageEngine, HistogramViewModel histogramViewModel, 
+			IDataService dataService, IConverterService converterService)
 		{
-			_dataService = new WinFilePickerService(new ConverterService()); // TODO: DEPENDENCY INJECTION
+			HistogramViewModel = histogramViewModel;
+			_dataService = dataService;
+			_converterService = converterService;
+			_imageEngine = imageEngine;
+
 
 			CloseApplicationCommand = new LambdaCommand(OnCloseApplicationCommandExecuted, CanCloseAppliationCommandExecute);
 			DownloadImageCommand = new LambdaCommand(OnDownloadImageCommandExecuted, CanDownloadImageCommandExecute);

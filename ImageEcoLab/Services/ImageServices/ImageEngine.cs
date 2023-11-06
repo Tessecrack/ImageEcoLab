@@ -198,13 +198,14 @@ namespace ImageEcoLab.Services
 			return result;
 		}
 
-		public ImageModel EqualizeGrayscale(ImageModel imageModel, Histograms inHistograms)
+		public ImageModel EqualizeGrayscale(ImageModel imageModel)
 		{
-			if (imageModel == null || inHistograms == null)
+			if (imageModel == null)
 			{
 				return imageModel;
 			}
 
+			var inHistograms = GetHistograms(imageModel);
 			var hist = new double[256];
 			var inHist = inHistograms.RedChannel;
 

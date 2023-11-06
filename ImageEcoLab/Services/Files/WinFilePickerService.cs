@@ -1,21 +1,15 @@
-﻿using ImageEcoLab.Models;
-using ImageEcoLab.Services.Base;
-using System;
-using System.Windows.Media.Imaging;
+﻿using ImageEcoLab.Services.Base;
 
 namespace ImageEcoLab.Services
 {
-    internal class WinFilePickerService : IDataService
+	internal class WinFilePickerService : IDataService
     {
         private readonly string pathDebug = "D:\\Desktop\\IEco\\ImageEcoLab\\ImageEcoLab\\Resources\\TestImage";
 
-		private readonly ConverterService _converterService;
-
 		public string? Path { get; private set; }
 
-        public WinFilePickerService(ConverterService converterService)
+        public WinFilePickerService()
         {
-            _converterService = converterService;
         }
 
         public bool OpenDialog()

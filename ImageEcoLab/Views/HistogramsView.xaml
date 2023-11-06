@@ -1,0 +1,44 @@
+﻿<UserControl x:Class="ImageEcoLab.Views.HistogramsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ImageEcoLab.Views"
+             xmlns:oxy="http://oxyplot.org/wpf"
+             xmlns:vm="clr-namespace:ImageEcoLab.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             DataContext="{Binding HistogramViewModel,Source={StaticResource Locator}}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <GroupBox Header="Brightness"
+                                      Grid.Row="0"
+                                      Padding="1"
+                                      Margin="1">
+            <oxy:PlotView Model="{Binding BrightnessHist}"/>
+        </GroupBox>
+        <GroupBox Header="Red channel" 
+                                      Grid.Row="1"
+                                      Padding="1"
+                                      Margin="1">
+            <oxy:PlotView Model="{Binding RedChannelHist}"/>
+        </GroupBox>
+        <GroupBox Header="Green channel" 
+                                      Grid.Row="2"
+                                      Padding="1"
+                                      Margin="1">
+            <oxy:PlotView Model="{Binding GreenChannelHist}"/>
+        </GroupBox>
+        <GroupBox Header="Blue channel" 
+                                      Grid.Row="3"
+                                      Padding="1"
+                                      Margin="1">
+            <oxy:PlotView Model="{Binding BlueChannelHist}"/>
+        </GroupBox>
+    </Grid>
+</UserControl>
