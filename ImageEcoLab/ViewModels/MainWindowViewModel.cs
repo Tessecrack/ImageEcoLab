@@ -12,7 +12,6 @@ using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 namespace ImageEcoLab.ViewModels
 {
@@ -346,11 +345,13 @@ namespace ImageEcoLab.ViewModels
 		#endregion
 
 		#region EqualizationHistogramCommand
-		public ICommand EqualizationHistogramCommand;
-		private bool CanEqualizationHistogramCommandExecute(object parameter) => true;
+		public ICommand EqualizationHistogramCommand { get; set; }
+		private bool CanEqualizationHistogramCommandExecute(object parameter) => _grayscaleImageModel != null;
 		private void OnEqualizationHistogramCommandExecuted(object parameter)
 		{
-
+			_currentImageModel = _imageEngine.EqualizeGrayscale(_grayscaleImageModel, _histograms);
+			ShowImage(_currentImageModel);
+			DrawHistogramsCommand.Execute(this);
 		}
 		#endregion
 

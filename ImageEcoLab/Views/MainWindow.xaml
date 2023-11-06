@@ -108,7 +108,8 @@
                                             <RadioButton Content="Linear" Margin="2" IsChecked="{Binding IsLinearGraph}"/>
                                             <Button Content="Draw histogram" Margin="2" 
                                                     Command="{Binding DrawHistogramsCommand}"/>
-                                            <Button Content="Equalization" Margin="2"/>
+                                            <Button Content="Equalization" Margin="2"
+                                                    Command="{Binding EqualizationHistogramCommand}"/>
                                         </StackPanel>
                                     </GroupBox>
                                 </StackPanel>

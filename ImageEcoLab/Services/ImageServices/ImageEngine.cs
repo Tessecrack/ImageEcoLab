@@ -1,4 +1,5 @@
 ﻿using ImageEcoLab.Models;
+using System;
 using System.Linq;
 using System.Reflection.Metadata;
 
@@ -198,9 +199,65 @@ namespace ImageEcoLab.Services
 			return result;
 		}
 
-		public void Equalize()
+		public ImageModel EqualizeGrayscale(ImageModel imageModel, Histograms inHistograms)
 		{
+			if (imageModel == null || inHistograms == null)
+			{
+				return imageModel;
+			}
 
+			var hist = new double[256];
+			var inHist = inHistograms.RedChannel;
+
+			var newImageModel = new ImageModel();
+
+			newImageModel.Width = imageModel.Width;
+			newImageModel.Height = imageModel.Height;
+			newImageModel.Uri = imageModel.Uri;
+
+			for (int i = 0; i < hist.Length; ++i)
+			{
+				hist[i] = inHist[i] / 256;
+			}
+
+			for (int i = 1; i < hist.Length; ++i)
+			{
+				hist[i] = hist[i - 1] + hist[i];
+			}
+
+			var max = hist.Max();
+			for (int i = 0; i < hist.Length; ++i)
+			{
+				hist[i] = 250 * hist[i] / max;
+			}
+
+			var height = newImageModel.Height;
+			var width = newImageModel.Width;
+
+			var pixels = new Pixel[height, width];
+			byte[] bytes = new byte[width * height * 4];
+			long counterBytes = 0;
+			for (int y = 0; y < height; ++y)
+			{
+				for (int x = 0; x < width; ++x)
+				{
+					var color = (int)Math.Round(hist[imageModel.Pixels[y, x].Red]);
+					if (color > 255) color = 255;
+					var alpha = imageModel.Pixels[y, x].Alpha;
+					pixels[y, x].Red = (byte)color;
+					pixels[y, x].Green = (byte)color;
+					pixels[y, x].Blue = (byte)color;
+					pixels[y, x].Alpha = alpha;
+
+					bytes[counterBytes++] = (byte)color;
+					bytes[counterBytes++] = (byte)color;
+					bytes[counterBytes++] = (byte)color;
+					bytes[counterBytes++] = alpha;
+				}
+			}
+			newImageModel.Pixels = pixels;
+			newImageModel.Bytes = bytes;
+			return newImageModel;
 		}
 	}
 }
