@@ -1,0 +1,27 @@
+﻿<UserControl x:Class="ImageEcoLab.Views.ViewportVideoView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ImageEcoLab.Views"
+             xmlns:vm="clr-namespace:ImageEcoLab.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="720" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition MinHeight="320"/>
+            <RowDefinition MinHeight="50" MaxHeight="150" Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Border BorderThickness="1" Margin="3">
+            <Image Source="{Binding Path=ViewportVideo}" Grid.Row="0"/>
+        </Border>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <Button Content="Start" Command="{Binding StartVideoCommand}"/>
+            <Button Content="Stop"/>
+        </StackPanel>
+        <GridSplitter HorizontalAlignment="Stretch" 
+                      VerticalAlignment="Bottom"
+                      Height="2" 
+                      Panel.ZIndex="100"/>
+    </Grid>
+</UserControl>

@@ -7,6 +7,7 @@ namespace ImageEcoLab.ViewModels
         public static IServiceCollection RegisterViewModels(this IServiceCollection services)
         {
 			services.AddSingleton<HistogramViewModel>();
+            services.AddSingleton<ViewportVideoViewModel>();
 			services.AddSingleton<MainWindowViewModel>();
 
             return services;

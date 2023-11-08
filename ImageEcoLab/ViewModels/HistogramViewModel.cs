@@ -2,6 +2,7 @@
 using ImageEcoLab.Services;
 using OxyPlot;
 using OxyPlot.Series;
+using System;
 using System.Windows.Markup;
 
 namespace ImageEcoLab.ViewModels
@@ -37,7 +38,7 @@ namespace ImageEcoLab.ViewModels
 
 		public void UpdateHistograms(ImageModel currentImageModel, short alignCoef, bool isLinearGraph)
 		{
-			this._histograms = _imageEngine.GetHistograms(currentImageModel);
+			this._histograms = _imageEngine.GetHistograms(currentImageModel.Bytes, currentImageModel.BitsPerPixel);
 
 			var redChannel = this._histograms.RedChannel;
 			var greenChannel = this._histograms.GreenChannel;
@@ -100,6 +101,13 @@ namespace ImageEcoLab.ViewModels
 			return plotModel;
 		}
 
+		public HistogramViewModel()
+		{
+			if (!App.IsDesignMode)
+			{
+				throw new InvalidOperationException("Cannot use this constructor in release");
+			}
+		}
 
         public HistogramViewModel(ImageEngine imageEngine)
         {

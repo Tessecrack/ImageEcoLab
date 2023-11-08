@@ -7,8 +7,7 @@
              xmlns:oxy="http://oxyplot.org/wpf"
              xmlns:vm="clr-namespace:ImageEcoLab.ViewModels"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800"
-             DataContext="{Binding HistogramViewModel,Source={StaticResource Locator}}">
+             d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>

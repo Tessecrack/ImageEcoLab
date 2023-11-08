@@ -16,11 +16,13 @@ namespace ImageEcoLab.ViewModels
 	[MarkupExtensionReturnType(typeof(MainWindowViewModel))]
 	internal class MainWindowViewModel : ViewModel
 	{
+		#region UserControls
+		public HistogramViewModel HistogramViewModel { get; private set; }
+		public ViewportVideoViewModel ViewportVideoViewModel { get; private set; }
+		#endregion
 		private readonly IDataService _dataService;
 		private readonly IConverterService _converterService;
 		private readonly ImageEngine _imageEngine;
-		public HistogramViewModel HistogramViewModel { get; private set; }
-
 
 		private ImageModel _sourceImageModel;
 
@@ -193,18 +195,20 @@ namespace ImageEcoLab.ViewModels
 				return;
 			}
 
-			BitmapImageShowed = _converterService.Convert(new BitmapImage(new Uri(uri)), PixelFormats.Bgra32);
+			var img = new BitmapImage(new Uri(uri));
+			BitmapImageShowed = _converterService.Convert(img, PixelFormats.Bgr32);
 
+			byte bitsPerPixel = (byte)(BitmapImageShowed.Format.BitsPerPixel / 8);
 			int width = BitmapImageShowed.PixelWidth;
 			int height = BitmapImageShowed.PixelHeight;
 
-			byte[] pixels = new byte[width * height * 4];
+			byte[] pixels = new byte[width * height * bitsPerPixel];
 
-			BitmapImageShowed.CopyPixels(pixels, width * 4, 0);
+			BitmapImageShowed.CopyPixels(pixels, width * bitsPerPixel, 0);
 
 			Task.Run(() =>
 			{
-				_sourceImageModel = _imageEngine.GetImageModel(pixels, width, height, uri);
+				_sourceImageModel = _imageEngine.GetImageModel(pixels, width, height, uri, bitsPerPixel);
 				_currentImageModel = _sourceImageModel;
 				DrawHistogramsCommand.Execute(this);
 			});
@@ -283,9 +287,19 @@ namespace ImageEcoLab.ViewModels
 			BitmapImageShowed = writeableBitmap;
 		}
 
+		public MainWindowViewModel()
+		{
+			if (!App.IsDesignMode)
+			{
+				throw new InvalidOperationException("Cannot use this constructor in release");
+			}
+		}
+
 		public MainWindowViewModel(ImageEngine imageEngine, HistogramViewModel histogramViewModel, 
+			ViewportVideoViewModel viewportVideoViewModel,
 			IDataService dataService, IConverterService converterService)
 		{
+			ViewportVideoViewModel = viewportVideoViewModel;
 			HistogramViewModel = histogramViewModel;
 			_dataService = dataService;
 			_converterService = converterService;
@@ -299,6 +313,7 @@ namespace ImageEcoLab.ViewModels
 			ConvertToGrayscaleCommand = new LambdaCommand(OnConvertToGrayscaleCommandExecuted, CanConvertToGrayscaleCommandExecute);
 			EqualizationHistogramCommand = new LambdaCommand(OnEqualizationHistogramCommandExecuted, CanEqualizationHistogramCommandExecute);
 			NormalizeImageCommand = new LambdaCommand(OnNormalizeImageCommandExecuted, CanNormalizeImageCommandExecute);
+			ViewportVideoViewModel = viewportVideoViewModel;
 		}
 	}
 }

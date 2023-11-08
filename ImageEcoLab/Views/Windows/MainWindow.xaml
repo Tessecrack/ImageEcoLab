@@ -133,8 +133,24 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Video">
-                <MediaElement Name="VideoControl" Source="">
-                </MediaElement>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <GridSplitter Width="1" Panel.ZIndex="100"/>
+                    <GroupBox Header="Video stream"
+                              Margin="3"
+                              Padding="1"
+                              Grid.Column="0">
+                        <view:ViewportVideoView DataContext="{Binding ViewportVideoViewModel}"/>
+                    </GroupBox>
+                    <GroupBox Header="Histograms" 
+                              Margin="3"
+                              Padding="1"
+                              Grid.Column="1">
+                    </GroupBox>
+                </Grid>
             </TabItem>
         </TabControl>
     </DockPanel>
