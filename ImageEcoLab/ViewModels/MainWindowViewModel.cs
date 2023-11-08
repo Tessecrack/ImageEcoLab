@@ -278,7 +278,7 @@ namespace ImageEcoLab.ViewModels
 			}
 
 			WriteableBitmap writeableBitmap = new WriteableBitmap(
-				_imageModel.Width, _imageModel.Height, 96.0, 96.0, PixelFormats.Bgra32, null);
+				_imageModel.Width, _imageModel.Height, 96.0, 96.0, PixelFormats.Bgr32, null);
 
 			var height = _imageModel.Height;
 			var width = _imageModel.Width;
