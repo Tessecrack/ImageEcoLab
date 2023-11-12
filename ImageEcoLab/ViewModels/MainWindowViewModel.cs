@@ -198,7 +198,7 @@ namespace ImageEcoLab.ViewModels
 			var img = new BitmapImage(new Uri(uri));
 			BitmapImageShowed = _converterService.Convert(img, PixelFormats.Bgr32);
 
-			byte bitsPerPixel = (byte)(BitmapImageShowed.Format.BitsPerPixel / 8);
+			byte bitsPerPixel = 4;
 			int width = BitmapImageShowed.PixelWidth;
 			int height = BitmapImageShowed.PixelHeight;
 
@@ -283,7 +283,7 @@ namespace ImageEcoLab.ViewModels
 			var height = _imageModel.Height;
 			var width = _imageModel.Width;
 			Int32Rect rect = new Int32Rect(0, 0, width, height);
-			writeableBitmap.WritePixels(rect, _imageModel.Bytes, width * writeableBitmap.Format.BitsPerPixel / 8, 0);
+			writeableBitmap.WritePixels(rect, _imageModel.Bytes, writeableBitmap.Format.BitsPerPixel, 0);
 			BitmapImageShowed = writeableBitmap;
 		}
 
