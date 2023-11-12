@@ -1,5 +1,6 @@
 ﻿using ImageEcoLab.Infrastructure.Commands;
 using ImageEcoLab.Services;
+using ImageEcoLab.Services.VideoServices;
 using OpenCvSharp;
 using System;
 using System.ComponentModel;
@@ -13,11 +14,8 @@ namespace ImageEcoLab.ViewModels
 {
 	internal class ViewportVideoViewModel : ViewModel
 	{
-		private Mat _matImage;
-
-		private byte[] _buffer;
-
-		private ImageEngine _imageEngine;
+		private WebcamStreaming _webcamStreaming;
+		private BackgroundWorker _backgroundWorker;
 
 		#region ViewportVideo property
 		private BitmapSource _viewportVideo;
@@ -29,7 +27,6 @@ namespace ImageEcoLab.ViewModels
 		private bool CanStartVideoCommandExecute(object parameter) => true;
 		private void OnStartVideoCommandExecuted(object parameter)
 		{
-			InitializeCamera();
 			PlayCamera();
 		}
 		#endregion
@@ -39,72 +36,50 @@ namespace ImageEcoLab.ViewModels
 		private bool CanStopVideoCommandExecute(object parameter) => true;
 		private void OnStopVideoCommandExecuted(object parameter)
 		{
-
+			_webcamStreaming.UnSubscribeOnStream(Handler);
+			_webcamStreaming.StopStream();
+			//_backgroundWorker.CancelAsync();
 		}
 		#endregion
 
 		#region WebCamera
-		private VideoCapture _capCamera;
-		public void InitializeCamera()
-		{
-			_matImage = new Mat();
-			_capCamera = new VideoCapture(0);
-		}
-
 		public void PlayCamera()
 		{
-			var backgroundWorker = new BackgroundWorker();
-			backgroundWorker.WorkerReportsProgress = true;
-
-			backgroundWorker.DoWork += WebCamStreaming;
-			backgroundWorker.ProgressChanged += UpdateFrame;
-
-			backgroundWorker.RunWorkerAsync();
+			_backgroundWorker.RunWorkerAsync();
 		}
 
 		private void WebCamStreaming(object sender, DoWorkEventArgs eventArgs)
 		{
-			while (!_capCamera.IsDisposed)
-			{
-				_capCamera.Read(_matImage);
-				if (_matImage.Empty())
-				{
-					break;
-				}
-				_buffer = new byte[4 * _matImage.Total()];
-				var counter = 0;
-				for (int y = 0; y < _matImage.Rows; ++y)
-				{
-					for (int x = 0; x < _matImage.Cols; ++x)
-					{
-						var pixel = _matImage.At<Vec3b>(y, x);
-						byte alpha = 255;
-						_buffer[counter++] = pixel.Item0;
-						_buffer[counter++] = pixel.Item1;
-						_buffer[counter++] = pixel.Item2;
-						_buffer[counter++] = alpha;
-					}
-				}
-				Thread.Sleep(100);
-				((BackgroundWorker)sender).ReportProgress(0);
-			}
+			_webcamStreaming.SubscribeOnStream(Handler);
+			_webcamStreaming.StartStream(100);
 		}
 
 		private void UpdateFrame(object sender, ProgressChangedEventArgs eventArgs)
 		{
-			var width = _matImage.Width;
-			var height = _matImage.Height;
+			var frame = _webcamStreaming.GetFrame(out int width, out int height);
 
 			WriteableBitmap writeableBitmap = new WriteableBitmap(width, height, 96.0, 96.0, PixelFormats.Bgra32, null);
 			Int32Rect rect = new Int32Rect(0, 0, width, height);
-			writeableBitmap.WritePixels(rect, _buffer, 4 * width, 0);
+			writeableBitmap.WritePixels(rect, frame, 4 * width, 0);
 			ViewportVideo = writeableBitmap;
 		}
 
-		#endregion
-		public ViewportVideoViewModel(ImageEngine imageEngine)
+		private void Handler()
 		{
-			_imageEngine = imageEngine;
+			_backgroundWorker.ReportProgress(0);
+		}
+
+		#endregion
+		public ViewportVideoViewModel(WebcamStreaming webcamStreaming)
+		{
+			_webcamStreaming = webcamStreaming;
+
+			_backgroundWorker = new BackgroundWorker();
+
+			_backgroundWorker.WorkerReportsProgress = true;
+
+			_backgroundWorker.DoWork += WebCamStreaming;
+			_backgroundWorker.ProgressChanged += UpdateFrame;
 
 			StartVideoCommand = new LambdaCommand(OnStartVideoCommandExecuted, CanStartVideoCommandExecute);
 			StopVideoCommand = new LambdaCommand(OnStopVideoCommandExecuted, CanStopVideoCommandExecute);
