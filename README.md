@@ -1,2 +1,2 @@
 Simple example computer vision software on C# WPF (MVVM) pattern.  
-IMPLEMENTED THE CONSTRUCTION OF A HISTOGRAM FOR IMAGES OR VIDEOS (FROM A WEBCAM)
+Implemented the construction of a histogram for iamges or videos (from webcam)
