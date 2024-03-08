@@ -2,6 +2,7 @@
 using ImageEcoLab.Models;
 using ImageEcoLab.Services;
 using ImageEcoLab.Services.Base;
+using ImageEcoLab.Services.VideoServices;
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
@@ -18,11 +19,18 @@ namespace ImageEcoLab.ViewModels
 	{
 		#region UserControls
 		public HistogramViewModel HistogramViewModel { get; private set; }
-		public ViewportVideoViewModel ViewportVideoViewModel { get; private set; }
 		#endregion
+
+		#region Services
 		private readonly IDataService _dataService;
 		private readonly IConverterService _converterService;
 		private readonly ImageEngine _imageEngine;
+		private readonly WebcamStreaming _webcamStreaming;
+		#endregion
+
+		#region Multithreading Helpers
+		private BackgroundWorker _workerWebcamStreaming;
+		#endregion
 
 		private ImageModel _sourceImageModel;
 
@@ -178,7 +186,6 @@ namespace ImageEcoLab.ViewModels
 			ShowImage(newImageModel);
 			_grayscaleImageModel = newImageModel;
 			_currentImageModel = _grayscaleImageModel;
-			DrawHistogramsCommand.Execute(this);
 		}
 
 		#endregion
@@ -270,6 +277,53 @@ namespace ImageEcoLab.ViewModels
 		}
 		#endregion
 
+		#region StartWebcamCommand
+		public ICommand StartWebcamCommand { get; set; }
+		private bool CanStartWebcamCommandExecute(object parameter) => true;
+		private void OnStartWebcamCommandExecuted(object parameter)
+		{
+			PlayCamera();
+		}
+
+		public void PlayCamera()
+		{
+			_workerWebcamStreaming.RunWorkerAsync();
+		}
+
+		private void WebCamStreaming(object sender, DoWorkEventArgs eventArgs)
+		{
+			_webcamStreaming.SubscribeOnStream(Handler);
+			_webcamStreaming.StartStream(100);
+		}
+
+		private void UpdateFrame(object sender, ProgressChangedEventArgs eventArgs)
+		{
+			var frame = _webcamStreaming.GetFrame(out int width, out int height);
+			var imageModel = new ImageModel();
+			imageModel.Width = width;
+			imageModel.Height = height;
+			imageModel.BitsPerPixel = 4;
+			imageModel.Bytes = frame;
+			_sourceImageModel = imageModel;
+			_currentImageModel = imageModel;
+			ShowImage(imageModel);
+		}
+
+		private void Handler()
+		{
+			_workerWebcamStreaming.ReportProgress(0);
+		}
+		#endregion
+
+		#region StopWebcamCommand
+		public ICommand StopWebcamCommand { get; set; }
+		private bool CanStopWebcamCommandExecute(object parameter) => true;
+		private void OnStopWebcamCommandExecuted(Object parameter)
+		{
+
+		}
+		#endregion
+
 		private void ShowImage(ImageModel _imageModel)
 		{
 			if (_imageModel == null)
@@ -283,8 +337,9 @@ namespace ImageEcoLab.ViewModels
 			var height = _imageModel.Height;
 			var width = _imageModel.Width;
 			Int32Rect rect = new Int32Rect(0, 0, width, height);
-			writeableBitmap.WritePixels(rect, _imageModel.Bytes, writeableBitmap.Format.BitsPerPixel, 0);
+			writeableBitmap.WritePixels(rect, _imageModel.Bytes, _imageModel.BitsPerPixel * width, 0);
 			BitmapImageShowed = writeableBitmap;
+			DrawHistogramsCommand?.Execute(this);
 		}
 
 		public MainWindowViewModel()
@@ -296,15 +351,13 @@ namespace ImageEcoLab.ViewModels
 		}
 
 		public MainWindowViewModel(ImageEngine imageEngine, HistogramViewModel histogramViewModel, 
-			ViewportVideoViewModel viewportVideoViewModel,
-			IDataService dataService, IConverterService converterService)
+			IDataService dataService, IConverterService converterService, WebcamStreaming webcamStreaming)
 		{
-			ViewportVideoViewModel = viewportVideoViewModel;
 			HistogramViewModel = histogramViewModel;
 			_dataService = dataService;
 			_converterService = converterService;
 			_imageEngine = imageEngine;
-
+			_webcamStreaming = webcamStreaming;
 
 			CloseApplicationCommand = new LambdaCommand(OnCloseApplicationCommandExecuted, CanCloseAppliationCommandExecute);
 			DownloadImageCommand = new LambdaCommand(OnDownloadImageCommandExecuted, CanDownloadImageCommandExecute);
@@ -313,7 +366,13 @@ namespace ImageEcoLab.ViewModels
 			ConvertToGrayscaleCommand = new LambdaCommand(OnConvertToGrayscaleCommandExecuted, CanConvertToGrayscaleCommandExecute);
 			EqualizationHistogramCommand = new LambdaCommand(OnEqualizationHistogramCommandExecuted, CanEqualizationHistogramCommandExecute);
 			NormalizeImageCommand = new LambdaCommand(OnNormalizeImageCommandExecuted, CanNormalizeImageCommandExecute);
-			ViewportVideoViewModel = viewportVideoViewModel;
+			StartWebcamCommand = new LambdaCommand(OnStartWebcamCommandExecuted, CanStartWebcamCommandExecute);
+			StopWebcamCommand = new LambdaCommand(OnStopWebcamCommandExecuted, CanStopWebcamCommandExecute);
+
+			_workerWebcamStreaming = new BackgroundWorker();
+			_workerWebcamStreaming.WorkerReportsProgress = true;
+			_workerWebcamStreaming.DoWork += WebCamStreaming;
+			_workerWebcamStreaming.ProgressChanged += UpdateFrame;
 		}
 	}
 }

@@ -1,10 +1,7 @@
 ﻿using ImageEcoLab.Infrastructure.Commands;
-using ImageEcoLab.Services;
 using ImageEcoLab.Services.VideoServices;
-using OpenCvSharp;
 using System;
 using System.ComponentModel;
-using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;

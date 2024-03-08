@@ -44,114 +44,100 @@
                         Command="{Binding Path=CloseApplicationCommand}"/>
             </StatusBarItem>
         </StatusBar>
-        <TabControl>
-            <TabItem Header="Image">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MinWidth="200" Width="Auto" MaxWidth="300"/>
-                        <ColumnDefinition MinWidth="200"/>
-                        <ColumnDefinition MinWidth="200"/>
-                    </Grid.ColumnDefinitions>
-                    <GridSplitter Grid.Column="0" Width="2" Panel.ZIndex="100"/>
-                    <GridSplitter Grid.Column="1" Width="2" Panel.ZIndex="100"/>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition MinWidth="200" Width="Auto" MaxWidth="300"/>
+                <ColumnDefinition MinWidth="200"/>
+                <ColumnDefinition MinWidth="200"/>
+            </Grid.ColumnDefinitions>
+            <GridSplitter Grid.Column="0" Width="2" Panel.ZIndex="100"/>
+            <GridSplitter Grid.Column="1" Width="2" Panel.ZIndex="100"/>
 
-                    <GroupBox Header="Actions" 
+            <GroupBox Header="Actions" 
                               Grid.Column="0" 
                               Padding="1"
                               Margin="0,5">
-                        <DockPanel>
-                            <DockPanel DockPanel.Dock="Top" Margin="3">
-                                <fa:ImageAwesome Icon="Solid_Search" Height="12" Margin="3"/>
-                                <TextBox Text=""/>
-                            </DockPanel>
-                            <ScrollViewer>
-                                <StackPanel Orientation="Vertical">
-                                    <GroupBox Header="Normalization"
+                <DockPanel>
+                    <DockPanel DockPanel.Dock="Top" Margin="3">
+                        <fa:ImageAwesome Icon="Solid_Search" Height="12" Margin="3"/>
+                        <TextBox Text=""/>
+                    </DockPanel>
+                    <ScrollViewer>
+                        <StackPanel Orientation="Vertical">
+                            <GroupBox Header="Webcam"
                                               Padding="1"
                                               Margin="5">
-                                        <StackPanel Orientation="Vertical">
-                                            <GroupBox Padding="1">
-                                                <StackPanel>
-                                                    <TextBlock Text="Upper threshold" Margin="3" ToolTip="Recomendation: 240 - 254"/>
-                                                    <Slider Margin="3" Minimum="0" Maximum="255" 
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Text="Delay" ToolTip="Minimum: 100 ms" Margin="3"/>
+                                    <Slider Margin="3" Minimum="100" Maximum="5000"/>
+                                    <Button Content="Start" Margin="3" Command="{Binding StartWebcamCommand}"/>
+                                    <Button Content="Stop" Margin="3" Command="{Binding StopWebcamCommand}"/>
+                                </StackPanel>
+                            </GroupBox>
+                            <GroupBox Header="Normalization"
+                                              Padding="1"
+                                              Margin="5">
+                                <StackPanel Orientation="Vertical">
+                                    <GroupBox Padding="1">
+                                        <StackPanel>
+                                            <TextBlock Text="Upper threshold" Margin="3" ToolTip="Recomendation: 240 - 254"/>
+                                            <Slider Margin="3" Minimum="0" Maximum="255" 
                                                             Value="{Binding UpperThresholdNormalization}"
                                                             ToolTip="{Binding UpperThresholdNormalization}"/>
-                                                    <TextBlock Text="Lower threshold" Margin="3" ToolTip="Recomendation: 1 - 10"/>
-                                                    <Slider Margin="3" Minimum="0" Maximum="255"
+                                            <TextBlock Text="Lower threshold" Margin="3" ToolTip="Recomendation: 1 - 10"/>
+                                            <Slider Margin="3" Minimum="0" Maximum="255"
                                                             Value="{Binding LowerThresholdNormalization}"
                                                             ToolTip="{Binding LowerThresholdNormalization}"/>
-                                                    <Button Content="Normalize" Command="{Binding Path=NormalizeImageCommand}" Margin="3"></Button>
-                                                </StackPanel>
-                                            </GroupBox>
-                                        </StackPanel>
-                                    </GroupBox>
-                                    <GroupBox Header="Grayscale"
-                                              Padding="1"
-                                              Margin="5">
-                                        <Button Content="Convert to grayscale" Command="{Binding Path=ConvertToGrayscaleCommand}" Margin="3"/>
-                                    </GroupBox>
-                                    <GroupBox Header="Histogram" 
-                                              Padding="1"
-                                              Margin="5">
-                                        <StackPanel Orientation="Vertical">
-                                            <GroupBox Padding="1">
-                                                <StackPanel Margin="3">
-                                                    <TextBlock Text="Alignment height" Margin="3" ToolTip="Only for rendering. Value = 0 is original"/>
-                                                    <Slider Minimum="0" Maximum="250" 
-                                                            Value="{Binding AligmentCoefHist}" 
-                                                            ToolTip="{Binding AligmentCoefHist}"
-                                                            Margin="5" TickFrequency="1"/>
-                                                </StackPanel>
-                                            </GroupBox>
-                                            <RadioButton Content="Histogram" Margin="2" IsChecked="{Binding IsHistogramGraph}"/>
-                                            <RadioButton Content="Linear" Margin="2" IsChecked="{Binding IsLinearGraph}"/>
-                                            <Button Content="Draw histogram" Margin="2" 
-                                                    Command="{Binding DrawHistogramsCommand}"/>
-                                            <Button Content="Equalization" Margin="2"
-                                                    Command="{Binding EqualizationHistogramCommand}"/>
+                                            <Button Content="Normalize" Command="{Binding Path=NormalizeImageCommand}" Margin="3"></Button>
                                         </StackPanel>
                                     </GroupBox>
                                 </StackPanel>
-                            </ScrollViewer>
-                        </DockPanel>
-                    </GroupBox>
+                            </GroupBox>
+                            <GroupBox Header="Grayscale"
+                                              Padding="1"
+                                              Margin="5">
+                                <Button Content="Convert to grayscale" Command="{Binding Path=ConvertToGrayscaleCommand}" Margin="3"/>
+                            </GroupBox>
+                            <GroupBox Header="Histogram" 
+                                              Padding="1"
+                                              Margin="5">
+                                <StackPanel Orientation="Vertical">
+                                    <GroupBox Padding="1">
+                                        <StackPanel Margin="3">
+                                            <TextBlock Text="Alignment height" Margin="3" ToolTip="Only for rendering. Value = 0 is original"/>
+                                            <Slider Minimum="0" Maximum="250" 
+                                                            Value="{Binding AligmentCoefHist}" 
+                                                            ToolTip="{Binding AligmentCoefHist}"
+                                                            Margin="5" TickFrequency="1"/>
+                                        </StackPanel>
+                                    </GroupBox>
+                                    <RadioButton Content="Histogram" Margin="2" IsChecked="{Binding IsHistogramGraph}"/>
+                                    <RadioButton Content="Linear" Margin="2" IsChecked="{Binding IsLinearGraph}"/>
+                                    <Button Content="Draw histogram" Margin="2" 
+                                                    Command="{Binding DrawHistogramsCommand}"/>
+                                    <Button Content="Equalization" Margin="2"
+                                                    Command="{Binding EqualizationHistogramCommand}"/>
+                                </StackPanel>
+                            </GroupBox>
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </GroupBox>
 
-                    <GroupBox Header="Image" 
+            <GroupBox Header="Content" 
                               Grid.Column="1"
                               Padding="1"
                               Margin="0,5">
-                        <GroupBox Header="Source" Padding="1" Margin="3">
-                            <Image Source="{Binding BitmapImageShowed}" Stretch="Fill"/>
-                        </GroupBox>
-                    </GroupBox>
-                    <GroupBox Header="Histogram" 
+                <GroupBox Header="Source" Padding="1" Margin="3">
+                    <Image Source="{Binding BitmapImageShowed}" Stretch="Fill"/>
+                </GroupBox>
+            </GroupBox>
+            <GroupBox Header="Histogram" 
                               Grid.Column="2"
                               Padding="1"
                               Margin="0,5">
-                        <view:HistogramsView DataContext="{Binding HistogramViewModel}"/>
-                    </GroupBox>
-                </Grid>
-            </TabItem>
-            <TabItem Header="Video">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <GridSplitter Width="1" Panel.ZIndex="100"/>
-                    <GroupBox Header="Video stream"
-                              Margin="3"
-                              Padding="1"
-                              Grid.Column="0">
-                        <view:ViewportVideoView DataContext="{Binding ViewportVideoViewModel}"/>
-                    </GroupBox>
-                    <GroupBox Header="Histograms" 
-                              Margin="3"
-                              Padding="1"
-                              Grid.Column="1">
-                    </GroupBox>
-                </Grid>
-            </TabItem>
-        </TabControl>
+                <view:HistogramsView DataContext="{Binding HistogramViewModel}"/>
+            </GroupBox>
+        </Grid>
     </DockPanel>
 </Window>
